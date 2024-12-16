@@ -64,7 +64,7 @@ def tablero():
     for row in range(filas):
         for col in range(columnas):
             x, y = col * tamanio_cartas, row * tamanio_cartas
-            if revealed[row][col]:
+            if cartas_reveladas[row][col]:
                 ventana.blit(board[row][col], (x, y))
             else:
                 pygame.draw.rect(ventana, GRAY, (x, y, tamanio_cartas, tamanio_cartas), 3)  # Añade borde alrededor de cada carta no revelada
@@ -79,13 +79,13 @@ def comprobar_pareja_cartas(selected):
             return True
         else:
             pygame.time.wait(1000)
-            revealed[r1][c1] = False
-            revealed[r2][c2] = False
+            cartas_reveladas[r1][c1] = False
+            cartas_reveladas[r2][c2] = False
     return False
 
 def victoria():
     #devolveremos true si hemos revelado todas las cartas --> q será cuando hayamos ganado el juego
-    if all(all(row)for row in revealed):        
+    if all(all(row)for row in cartas_reveladas):        
         return True
 
 def mostrar_mensaje_victoria():
@@ -99,40 +99,44 @@ def mostrar_mensaje_victoria():
     
 
 board = crear_cartas(cartas, tamanio_cartas, filas, columnas)
-revealed = [[False] *  columnas  for _ in range(filas)] #todas las cartas inicialmente ocultas
+cartas_reveladas = [[False] * columnas for _ in range(filas)] #todas las cartas inicialmente ocultas
 
-# Bucle principal
-running = True
+#bucle principal de ejecución en el programa
+en_ejecucion = True
 selected = []
-show_title_screen = True  # Controla si se muestra la pantalla inicial
+mostrar_titulo_ventana = True  # Controla si se muestra la pantalla inicial
 
-while running:
-    if show_title_screen:
+while en_ejecucion:
+    if mostrar_titulo_ventana:
         ventana_inicial()
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                show_title_screen = False
+            #con le objeto event cogemos las acciones o pulsaciones con las que se pueden encontrar los usuarios
+            
+            if event.type == pygame.QUIT:#1º accion de salida del juego
+                en_ejecucion = False
+            if event.type == pygame.MOUSEBUTTONDOWN:#2º event del usuario --> btn pulsado
+                mostrar_titulo_ventana = False
     else:
         tablero()
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                x, y = event.pos
+            #volvemos a coger los eventos segun las condiciones :)
+            
+            if event.type == pygame.QUIT:#1º salimos del juego
+                en_ejecucion = False
+            if event.type == pygame.MOUSEBUTTONDOWN:#2º cogemos la pulsacion con el raton del usuario
+                x, y = event.pos # 3º pillamos la posicion de dnd se encuentra el ratón  --> q está siendo manejado por el usuario --> con las posiciones "X" e "Y"
                 row, col = y // tamanio_cartas, x // tamanio_cartas
-                if not revealed[row][col]:
-                    revealed[row][col] = True
+                if not cartas_reveladas[row][col]:
+                    cartas_reveladas[row][col] = True
                     selected.append((row, col))
                 if len(selected) == 2:
                     if not comprobar_pareja_cartas(selected):
-                        revealed[selected[0][0]][selected[0][1]] = False
-                        revealed[selected[1][0]][selected[1][1]] = False
+                        cartas_reveladas[selected[0][0]][selected[0][1]] = False
+                        cartas_reveladas[selected[1][0]][selected[1][1]] = False
                     selected = []
                 if victoria():
                     mostrar_mensaje_victoria()
-                    running = False
+                    en_ejecucion = False
                     #la variable de q el juego este en marcha la ponemos en false para que deje de ejecutarse
 pygame.quit()
