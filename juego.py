@@ -94,8 +94,8 @@ def comprobar_pareja_cartas(selected):
             return True
         else:
             pygame.time.wait(1000)
-            cartas_reveladas[r1][c1] = False
-            cartas_reveladas[r2][c2] = False
+            cartas_reveladas[r1][c1] = True #false
+            cartas_reveladas[r2][c2] = True #false
     return False
 
 
@@ -109,8 +109,10 @@ def mostrar_mensaje_victoria():
     ventana.fill(WHITE)
     texto_victoria1 = FONT.render("¡Has ganado! :)", True, BLACK)
     texto_victoria2 = FONT.render("¡Nos vemos en la proxima!", True, BLACK)
+    texto_victoria3 = FONT.render(f"Pulsaciones totales: {pulsaciones}", True, BLACK)
     ventana.blit(texto_victoria1, (ancho // 2, alto // 3))
     ventana.blit(texto_victoria2, (ancho // 3, alto // 2))
+    ventana.blit(texto_victoria3, (10,10)) 
     pygame.display.flip()
     pygame.time.wait(3000)
 
@@ -118,12 +120,13 @@ def mostrar_mensaje_victoria():
 board = crear_cartas(cartas, tamanio_cartas, filas, columnas)
 cartas_reveladas = [
     [False] * columnas for _ in range(filas)
-]  # todas las cartas inicialmente ocultas
+]  # todas las cartas inicialmente ocultas --- inicio
 
 # bucle principal de ejecución en el programa
 en_ejecucion = True
 selected = []
 mostrar_titulo_ventana = True  # Controla si se muestra la pantalla inicial
+pulsaciones = 0 #contador de pulsaciones
 
 while en_ejecucion:
     if mostrar_titulo_ventana:
@@ -138,7 +141,13 @@ while en_ejecucion:
             ):  # 2º event del usuario --> btn pulsado
                 mostrar_titulo_ventana = False
     else:
+        ventana.fill(WHITE)
         tablero()
+        #mostramos las pulsaciones y q se vayan actualizando cada vez q pulsamos 
+        texto_pulsaciones = FONT.render(f"Pulsaciones: {pulsaciones}", True, BLACK)
+        ventana.blit(texto_pulsaciones, (10, 10))
+        
+        pygame.display.flip()#esto es lo que nos permite la actualizacion de la variable cada vez q el usuario selecciona una carta
 
         for event in pygame.event.get():
             # volvemos a coger los eventos segun las condiciones :)
@@ -150,9 +159,9 @@ while en_ejecucion:
             if (
                 event.type == pygame.MOUSEBUTTONDOWN
             ):  # 2º cogemos la pulsacion con el raton del usuario
-                x, y = (
-                    event.pos
-                )  # 3º pillamos la posicion de dnd se encuentra el ratón  --> q está siendo manejado por el usuario --> con las posiciones "X" e "Y"
+                pulsaciones += 1
+                x, y = event.pos
+                # 3º pillamos la posicion de dnd se encuentra el ratón  --> q está siendo manejado por el usuario --> con las posiciones "X" e "Y"
            
                 ##----------------------
                 #calculamos la posición de la carta en filas y columnas
@@ -176,12 +185,8 @@ while en_ejecucion:
                             fila1, columna1 = selected[0]  # Primera carta seleccionada
                             fila2, columna2 = selected[1]  # Segunda carta seleccionada
 
-                            cartas_reveladas[fila1][
-                                columna1
-                            ] = False  #ocultamos carta 1
-                            cartas_reveladas[fila2][
-                                columna2
-                            ] = False  #ocultamos carta 2
+                            cartas_reveladas[fila1][columna1] = False  #ocultamos carta 1
+                            cartas_reveladas[fila2][columna2] = False  #ocultamos carta 2
 
                         #vaciamos nuestro array de cartas seleccionadas para dar paso al  siguiente turno :)
                         selected = []
